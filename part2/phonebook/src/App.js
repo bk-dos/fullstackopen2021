@@ -5,6 +5,31 @@ import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import appServices from './services/app'
 
+const Notification = ({ message }) => {
+  const notificationStyle = {
+    color: "green",
+    background: "lightgrey",
+    fontSize: 20,
+    borderStyle: "solid",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  }
+  if (message === null) {
+    return null
+  }
+
+  if (message.startsWith("Information")) {
+    notificationStyle.color = "red"
+  }
+
+  return (
+    <div style={notificationStyle}>
+      {message}
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
 
@@ -19,6 +44,7 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ searchText, setSearchText ] = useState('')
+  const [ message, setMessage ] = useState(null)
 
   const nameChangeHandler = (event) => {
     setNewName(event.target.value)
@@ -32,6 +58,19 @@ const App = () => {
     appServices.updateNumber(personToUpdate, id, newNumber)
       .then(returnedPerson => {
         setPersons(persons.map(person => person.id !== id ? person : returnedPerson))
+        setNewName('')
+        setNewNumber('')
+        setMessage(`Changed ${returnedPerson.name}'s number`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
+      })
+      .catch(error => {
+        setMessage(`Information of ${personToUpdate.name} has already been removed from server`)
+        setPersons(persons.filter(person => person.id !== id))
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
       })
   }
 
@@ -51,6 +90,10 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+          setMessage(`Added ${returnedPerson.name}`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
     }
   }
@@ -77,7 +120,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      <Notification message={message}/>
       <Filter value={searchText} onChange={searchHandler}/> 
 
       <h3>Add a new</h3>
