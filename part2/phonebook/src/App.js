@@ -66,11 +66,11 @@ const App = () => {
         }, 5000)
       })
       .catch(error => {
-        setMessage(`Information of ${personToUpdate.name} has already been removed from server`)
-        setPersons(persons.filter(person => person.id !== id))
+        setMessage(error.response.data.error)
         setTimeout(() => {
           setMessage(null)
         }, 5000)
+        console.log(error.response.data.error)
       })
   }
 
@@ -84,7 +84,8 @@ const App = () => {
     } else {
       const newPerson = {name: newName, number: newNumber}
 
-      appServices.create(newPerson)
+      appServices
+        .create(newPerson)
         .then(returnedPerson => {
           //console.log(returnedPerson)
           setPersons(persons.concat(returnedPerson))
@@ -94,6 +95,13 @@ const App = () => {
           setTimeout(() => {
             setMessage(null)
           }, 5000)
+        })
+        .catch(error => {
+          setMessage(error.response.data.error)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+          console.log(error)
         })
     }
   }
